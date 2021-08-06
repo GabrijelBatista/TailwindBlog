@@ -24,7 +24,7 @@
                     <div class="absolute bg-indigo-500 text-white mt-1 rounded z-10 shadow-lg w-40 max-w-xs" v-if="val.show">
                       <ul class="list-none overflow-hidden rounded">
                         <li v-for="category in val.items">
-                          <router-link to="/article" class="hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">{{category}}</router-link>
+                          <router-link to="/article" class="hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">{{category.name}}</router-link>
                         </li>
                       </ul>
                     </div>
@@ -32,14 +32,21 @@
               </div>
             </div>
               <div class="dropdown-wrapper inline-block relative m-2">
-              <router-link to="/about">
+              <router-link class="hover:no-underline" to="/about">
                 <div class="transition duration-300 ease-in-out hover:bg-blue-600 bg-indigo-500 text-white font-bold py-2 px-4 rounded">
                  About
                 </div>
               </router-link>
               </div>
+              <div v-if="this.getUser" class="dropdown-wrapper inline-block relative m-2 ">
+                  <router-link class="hover:no-underline" to="/add-article">
+                      <div class="transition duration-300 ease-in-out text-2xl hover:bg-green-600 bg-green-500 text-white font-bold py-0.5 px-4 rounded">
+                          +
+                      </div>
+                  </router-link>
+              </div>
               <div v-if="this.getUser" class="dropdown-wrapper inline-block relative m-2">
-                  <button @click="logout" class="transition duration-300 ease-in-out hover:bg-red-600 bg-red-500 text-white font-bold py-2 px-4 rounded">
+                  <button @click="logout" class="transition duration-300 ease-in-out hover:bg-red-600 bg-red-500 text-white font-bold py-2 absolute -top-3.5 px-4 rounded">
                       <svg xmlns="http://www.w3.org/2000/svg" class=" h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                       </svg>
@@ -88,7 +95,12 @@
               About
             </div>
           </router-link>
-            <div @click="logout" class="rounded-lg mt-2 items-center py-2 px-8 bg-red-700 text-white border-r-4 border-gray-100">
+            <router-link v-if="getUser" to="/about">
+                <div class="rounded-lg mt-2 items-center py-2 px-8 bg-green-700 text-gray-100 border-r-4 border-gray-100">
+                    About
+                </div>
+            </router-link>
+            <div v-if="getUser" @click="logout" class="rounded-lg mt-2 items-center py-2 px-8 bg-red-700 text-white border-r-4 border-gray-100">
                 Logout
             </div>
         </div>
@@ -102,6 +114,7 @@ import { ref } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { mapGetters } from 'vuex'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
+import axios from "axios";
 
 export default {
   components: {
@@ -122,19 +135,14 @@ export default {
       navigation:{
         Articles: {
           show: false,
-          items: [
-            'Comedy',
-            'History',
-            'Politics',
-            'Other',
-          ]
+          items: []
         },
         'Sort By': {
           show: false,
           items: [
-            'Name',
-            'Newest',
-            'Popular',
+              {name: 'Name'},
+              {name: 'Newest'},
+              {name: 'Popular'},
           ]
         }
       }
@@ -142,10 +150,15 @@ export default {
   },
     created() {
         window.addEventListener('click', this.close)
+        axios.get('http://blog.local/api/getCategories').then( response => {
+            this.$store.commit('setCategories', response.data)
+            this.navigation.Articles.items=response.data
+        })
     },
     computed: {
         ...mapGetters([
             'getUser',
+            'getCategories'
         ])
     },
     methods: {
@@ -160,10 +173,11 @@ export default {
             e.preventDefault();
             axios.post('http://blog.local/api/logout').then(response => {
                 if (response.data.success) {
+                    this.$toast.success(response.data.message);
                     this.$store.commit('setUser', null)
                     this.$router.push('/admin-login')
                 } else {
-                    this.error = response.data.message
+                    this.$toast.error(response.data.message);
                 }
             })
                 .catch(function (error) {

@@ -47,6 +47,11 @@ export default {
                 error: null
             }
         },
+        computed: {
+            show_error: function(){
+                return this.error
+            }
+        },
         methods: {
             handleSubmit(e) {
                 e.preventDefault()
@@ -58,16 +63,21 @@ export default {
                         })
                             .then(response => {
                                 if (response.data.success) {
+                                    this.$toast.success(response.data.message);
                                     this.$store.commit('setUser', response.data.user)
                                     this.$router.push('/add-article')
+                                    this.error=null;
                                 } else {
-                                    this.error = response.data.message
+                                    this.$toast.error(response.data.message);
                                 }
                             })
                             .catch(function (error) {
                                 console.error(error);
                             });
                     })
+                }
+                else{
+                    this.$toast.error('Email and password fields cannot be empty.')
                 }
             },
         },

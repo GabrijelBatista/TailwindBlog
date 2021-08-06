@@ -21,10 +21,10 @@ class UserController extends Controller
 
         if (Auth::attempt($credentials)) {
             $success = true;
-            $message = 'User login successfully';
+            $message = 'Logged in!';
         } else {
             $success = false;
-            $message = 'Unauthorised';
+            $message = 'Wrong credentials!';
         }
 
         // response
@@ -45,7 +45,7 @@ class UserController extends Controller
         try {
             Session::flush();
             $success = true;
-            $message = 'Successfully logged out';
+            $message = 'Logged out!';
         } catch (\Illuminate\Database\QueryException $ex) {
             $success = false;
             $message = $ex->getMessage();

@@ -30,9 +30,11 @@
     "dependencies": {
         "@headlessui/vue": "^1.4.0",
         "@heroicons/vue": "^1.0.2",
+        "@meforma/vue-toaster": "^1.2.2",
         "@vueup/vue-quill": "^1.0.0-beta.7",
         "quill-blot-formatter": "^1.0.5",
         "quill-image-compress": "^1.2.15",
+        "stylus-loader": "^3.0.2",
         "vue-router": "^4.0.10",
         "vue-upload-drop-images": "^1.0.7",
         "vuex": "^4.0.2",
