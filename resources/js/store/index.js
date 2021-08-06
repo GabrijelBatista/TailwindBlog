@@ -21,5 +21,7 @@ export default createStore({
             state.user=user;
         }
     },
-    plugins: [createPersistedState()],
+    plugins: [createPersistedState({
+        storage: window.sessionStorage,
+    })],
 });
