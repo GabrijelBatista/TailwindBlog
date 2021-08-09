@@ -1,46 +1,84 @@
 <template>
-<div class="min-h-screen min-w-full items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div v-for="article in articles" class="mt-20 lg:mt-36">
+<div v-if="getDisplayArticles" class="min-h-screen min-w-full items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-serif">
+    <div :key="article.id" v-for="article in getDisplayArticles.data" class="mt-20 lg:mt-36">
         <div class="container mx-auto my-5">
-            <div class="relative rounded-lg flex flex-col md:flex-row items-center md:shadow-xl md:h-72 mx-2">
-                <div class="z-0 order-1 md:order-2 relative w-full md:w-2/5 h-80 md:h-full overflow-hidden rounded-lg md:rounded-none md:rounded-r-lg">
-                    <div class="absolute inset-0 w-full h-full object-fill object-center bg-blue-400 bg-opacity-30 bg-cover bg-bottom" style="background-image: url( https://images.unsplash.com/photo-1525302220185-c387a117886e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80 ); background-blend-mode: multiply;"></div>
-                    <div class="md:hidden absolute inset-0 h-full p-6 pb-6 flex flex-col-reverse justify-start items-start bg-gradient-to-b from-transparent via-transparent to-gray-900">
-                        <h3 class="w-full font-bold text-2xl text-white leading-tight mb-2"> {{article}}</h3>
-                        <h4 class="w-full text-xl text-gray-100 leading-tight">Bienvenido a</h4>
-                    </div>
+            <button @click="select_article(article.title)" class="relative w-full transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-105 rounded-lg flex flex-col md:flex-row items-center md:shadow-xl md:h-72 mx-2">
+                <div  class="z-0 order-1 md:order-2 relative w-full ml-2.5 md:w-2/5 h-80 md:h-full overflow-hidden rounded-lg md:rounded-none md:rounded-r-lg">
+                    <div class="mx-auto inset-0 w-full h-full object-fill  bg-blue-400 bg-opacity-30 bg-cover bg-bottom bg-cover" :style="{backgroundImage: 'url(../storage/images/'+article.images[0].title+')'}"></div>
                     <svg class="hidden md:block absolute inset-y-0 h-full w-24 fill-current text-white -ml-12" viewBox="0 0 100 100" preserveAspectRatio="none">
                         <polygon points="50,0 100,0 50,100 0,100" />
                     </svg>
                 </div>
                 <div class="z-10 order-2 md:order-1 w-full h-full md:w-3/5 flex items-center -mt-6 md:mt-0">
-                    <div class="p-8 md:pr-18 md:pl-14 md:py-12 mx-2 md:mx-0 h-full bg-white rounded-lg md:rounded-none md:rounded-l-lg shadow-xl md:shadow-none">
-                        <h4 class="hidden md:block text-xl text-gray-400">Bienvenido a</h4>
-                        <h3 class="hidden md:block font-bold text-2xl text-gray-700">HOTEL AMANEE</h3>
-                        <p class="text-gray-600 text-justify">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione itaque perspiciatis quod sapiente quidem, vero consectetur quae iure error tempore reprehenderit unde veritatis fugit iusto nemo amet. Assumenda, quam facilis.</p>
-                        <a class="flex items-baseline mt-3 text-blue-600 hover:text-blue-900 focus:text-blue-900" href="">
-                            <span>Conocer más de Amanee</span>
-                            <span class="text-xs ml-1">&#x279c;</span>
-                        </a>
+                    <div class="min-w-full p-8 md:pr-18 md:pl-14 md:py-12 mx-2 md:mx-0 h-full bg-white rounded-lg md:rounded-none md:rounded-l-lg shadow-xl md:shadow-none">
+                        <div class="hidden md:block mx-auto font-bold text-2xl text-gray-700">{{article.title}}</div>
+                        <p class="min-w-full text-gray-600 text-justify italic">{{article.description}}</p>
+                        <div class="absolute bottom-0">
+                            <div v-for="tag in article.tags" class="p-1 bottom-0 text-l inline-block float-left text-blue-500">@{{tag.title}}</div>
+                        </div>
+                        <div class="absolute top-0 right-0">
+                            <div v-for="category in article.categories" class="p-1 bottom-0 right-0 text-l inline-block float-right m-1 rounded-xl bg-white">{{category.name}}</div>
+                        </div>
+                        <div class="absolute bottom-0 right-0">
+                            <div class="p-1 bottom-0 text-l inline-block float-left text-white">{{article.date}}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </button>
         </div>
     </div>
+    <VueTailwindPagination
+        :current="getDisplayArticles.current_page"
+        :total="getDisplayArticles.total"
+        :per-page="getDisplayArticles.per_page"
+        @page-changed="currentPage = $event"
+        @click="pagination($event)"/>
 </div>
 </template>
 
 <script>
+
+
+import '@ocrv/vue-tailwind-pagination/styles'
+import VueTailwindPagination from '@ocrv/vue-tailwind-pagination'
+import {mapGetters} from "vuex";
+import axios from "axios";
+
 export default{
     data: function() {
-        return{
-            articles: [
-                'Comedy',
-                'History',
-                'Politics',
-                'Other',
-            ]
+        return {
+
         }
     },
+    computed: {
+        ...mapGetters([
+            'getArticles',
+            'getDisplayArticles',
+            'getSelectedCategory',
+            'getSort'
+        ])
+    },
+    components:{
+        VueTailwindPagination
+    },
+    methods:{
+        select_article(title){
+                        this.$router.push('/article/'+title)
+        },
+        pagination(){
+            axios.get('http://blog.local/api/displayArticles/'+this.getSelectedCategory+'/'+this.getSort+'?page=' + this.currentPage).then(response => {
+                this.$store.commit('setDisplayArticles', response.data.articles)
+            })
+        }
+
+    },
+    created(){
+            axios.get('http://blog.local/api/getArticles').then(response => {
+                this.$store.commit('setArticles', response.data.articles)
+                if(this.getDisplayArticles==null){
+                    this.$store.commit('setDisplayArticles', response.data.articles)
+                }
+            })
+    }
 }
 </script>

@@ -25,7 +25,7 @@ const routes = [
     component: About,
   },
   {
-    path: "/article",
+    path: "/article/:title",
     name: "Article",
     component: Article,
   },
@@ -43,6 +43,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
 router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth) {
         if (!store.getters['getUser']) {

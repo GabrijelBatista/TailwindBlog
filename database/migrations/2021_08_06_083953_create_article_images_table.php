@@ -15,8 +15,8 @@ class CreateArticleImagesTable extends Migration
     {
         Schema::create('article_images', function (Blueprint $table) {
             $table->id();
-            $table->string('article_id')->constrained('articles');
-            $table->string('image_id')->constrained('images');
+            $table->foreignId('article_id')->constrained('articles');
+            $table->foreignId('image_id')->constrained('images');
             $table->timestamps();
         });
     }

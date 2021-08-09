@@ -1,30 +1,53 @@
 <template>
     <div class="min-h-screen flex items-center justify-center bg-gray-50 pt-20 lg:pt-40 px-4 sm:px-6 lg:px-8 font-serif p-28">
         <div class="container bg-black bg-opacity-70 rounded-lg p-10 h-2/3">
+            <h1 v-if="getEditingArticle" class="mb-4 text-yellow-500 text-2xl">EDIT ARTICLE</h1>
+            <h1 v-if="!getEditingArticle" class="mb-4 text-green-500 text-2xl">ADD NEW ARTICLE</h1>
             <button class="inline-block" @click="expanded">
                 <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-1 text-yellow-500 hover:text-yellow-700 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
             </button>
-            <div class=" relative inline-block w-5/6 sm:float-right md:float-none md:w-1/3 md:mr-5 text-gray-700">
-                <select v-model="selected" :class="selected=='default' ? 'text-gray-400' : ''" class="inline-block w-full h-10 pl-3 appearance-none text-base placeholder-gray-600 border rounded-lg focus:shadow-outline">
-                    <option value="default" disabled>Choose category</option>
-                    <option v-for="category in getCategories" :key="category.id" :value="category.id">{{category.name}}</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
-                </div>
+            <div class="relative inline-block w-5/6 sm:float-right md:float-none md:w-1/3 md:mr-5 text-gray-700">
+                <Multiselect
+                    v-model="selected"
+                    :options="getCategories"
+                    mode="tags"
+                    valueProp="name"
+                    label="name"
+                    trackBy="id"
+                    placeholder="Select categories:"
+                    class="mb-4"
+                />
             </div>
-            <input type='text' placeholder="Title" class="text-center w-full md:w-1/3 mt-2 mb-6 px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-green-500" />
+            <input type='text' v-model="title" placeholder="Title" class="text-center w-full md:w-1/3 mt-2 mb-6 px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-green-500" />
             <QuillEditor :modules="[modules, modules2]" id="quill" class="bg-white min-h-screen" toolbar="full" theme="snow" />
-            <upload-images class="mt-3"/>
-            <button @click="save" class="mt-5 float-right flex bg-blue-500 rounded-full font-bold text-white px-4 py-3 transition duration-300 ease-in-out hover:bg-blue-600 mr-6">
+            <upload-images @changed="handleImages" class="mt-3"/>
+            <textarea placeholder="Short description" v-model="description" class="w-full mt-4 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="6"></textarea>
+            <button v-if="!getEditingArticle" @click="save" class="mt-5 float-right flex bg-green-500 rounded-full font-bold text-white px-4 py-3 transition duration-300 ease-in-out hover:bg-green-600 mr-6">
                 Publish
                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
             </button>
+            <button v-if="getEditingArticle" @click="save" class="mt-5 float-right flex bg-yellow-500 rounded-full font-bold text-white px-4 py-3 transition duration-300 ease-in-out hover:bg-yellow-600 mr-6">
+                Update
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            </button>
+            <div class="relative inline-block w-5/6 float-left md:w-1/3 m-5 text-gray-700">
+                <Multiselect
+                    v-model="tags"
+                    mode="tags"
+                    :createTag="true"
+                    :searchable="true"
+                    placeholder="Add tags:"
+                    :addTagOn="['space', 'enter']"
+                />
+            </div>
         </div>
         <transition name="fade"  mode="out-in">
             <div v-show="expand" class="fixed z-50 top-0 left-0 right-0 bottom-0 w-full h-screen bg-gray-700 bg-opacity-90 flex flex-col items-center justify-center">
@@ -68,6 +91,8 @@ import BlotFormatter, { AlignAction, DeleteAction, ImageSpec } from 'quill-blot-
 import ImageCompress from 'quill-image-compress';
 import axios from "axios";
 import {mapGetters} from "vuex";
+import Multiselect from '@vueform/multiselect'
+
 
 export default {
     setup: () => {
@@ -91,24 +116,85 @@ export default {
 
     data: function() {
         return{
-            html: null,
-            selected: "default",
+            old_tags: [],
+            old_images: [],
+            old_categories: [],
+            selected: null,
             expand:false,
             new_category: null,
+            tags: null,
+            title: null,
+            images: null,
+            description: null
         }
     },
     components: {
         UploadImages,
         QuillEditor,
+        Multiselect
     },
     computed: {
         ...mapGetters([
-            'getCategories'
+            'getCategories',
+            'getEditingArticle',
+            'getSelectedArticle',
+            'getUser'
         ])
     },
     methods: {
         save(){
-            this.html=document.getElementById("quill").firstChild.innerHTML;
+            if(this.selected!=null && this.tags!=null && this.selected!=null && this.images!=null && this.title!=null && this.description!=null) {
+                let form = new FormData();
+                form.append('title', this.title);
+                form.append('description', this.description);
+                for (let i = 0; i < this.images.length; i++) {
+                    let file = this.images[i];
+                    form.append('images[' + i + ']', file);
+                }
+                for (let y = 0; y < this.selected.length; y++) {
+                    let category = this.selected[y];
+                    form.append('categories[' + y + ']', category);
+                }
+                for (let z = 0; z < this.tags.length; z++) {
+                    let tag = this.tags[z];
+                    form.append('tags[' + z + ']', tag);
+                }
+                form.append('html', document.getElementById("quill").firstChild.innerHTML);
+                if((this.getEditingArticle)) {
+                    form.append('id', this.getSelectedArticle.id);
+                    axios.post('http://blog.local/api/editArticle', form, {
+                        headers: {
+                            "Content-Type": "multipart/form-data; boundary=${form._boundary}"
+                        }
+                    }).then(response => {
+                        this.$store.commit('setSelectedArticle', response.data);
+                        this.$store.commit('setEditingArticle', false);
+                        document.getElementById("quill").firstChild.innerHTML = null;
+                        this.$router.push('/article/'+response.data.id);
+                        this.$toast.success('Article updated!');
+                    }).catch(function (error) {
+                        this.$toast.error(error);
+                    });
+                }
+                else{
+                    axios.post('http://blog.local/api/addArticle', form, {
+                        headers: {
+                            "Content-Type": "multipart/form-data; boundary=${form._boundary}"
+                        }
+                    }).then(response => {
+                        document.getElementById("quill").firstChild.innerHTML = null;
+                        axios.get('http://blog.local/api/getArticles').then(response => {
+                            this.$router.push('/');
+                            this.$toast.success('Article added!');
+                        }).catch(function (error) {
+                            this.$toast.error(error);
+                        });
+                    });
+                }
+            }
+            else{
+                this.$toast.error('All fields are required!');
+            }
         },
         expanded() {
             this.expand=!this.expand;
@@ -125,9 +211,13 @@ export default {
                     'name' : this.new_category
                 }).then( response => {
                     this.$store.commit('setCategories', response.data)
-                    this.new_category=null
+                    this.new_category=null;
                     this.$toast.success('Category added!');
+
                 })
+                    .catch(function (error) {
+                        this.$toast.error(error);
+                    });
             }
         },
         delete_category(id){
@@ -137,10 +227,32 @@ export default {
                     this.$store.commit('setCategories', response.data)
                     this.$toast.success('Category deleted!');
                 })
+                    .catch(function (error) {
+                        this.$toast.error(error);
+                    });
+        },
+        handleImages(files) {
+            this.images=files;
         }
     },
+    mounted(){
+            if (this.getEditingArticle) {
+                document.getElementById("quill").firstChild.innerHTML = this.getSelectedArticle.content;
+                this.title = this.getSelectedArticle.title;
+                this.description = this.getSelectedArticle.description;
+            }
+    },
+    watch: {
+        getEditingArticle: function () {
+            this.title=null;
+            this.description=null;
+            document.getElementById("quill").firstChild.innerHTML = null;
+        },
+    }
 }
 </script>
+
+<style src="@vueform/multiselect/themes/default.css"></style>
 <style>
 .quill-editor iframe {
     pointer-events: none;

@@ -31,6 +31,8 @@
         "@headlessui/vue": "^1.4.0",
         "@heroicons/vue": "^1.0.2",
         "@meforma/vue-toaster": "^1.2.2",
+        "@ocrv/vue-tailwind-pagination": "^0.0.4",
+        "@vueform/multiselect": "^2.1.0",
         "@vueup/vue-quill": "^1.0.0-beta.7",
         "quill-blot-formatter": "^1.0.5",
         "quill-image-compress": "^1.2.15",

@@ -65,7 +65,7 @@ export default {
                                 if (response.data.success) {
                                     this.$toast.success(response.data.message);
                                     this.$store.commit('setUser', response.data.user)
-                                    this.$router.push('/add-article')
+                                    this.$router.push('/')
                                     this.error=null;
                                 } else {
                                     this.$toast.error(response.data.message);

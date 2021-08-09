@@ -1,9 +1,9 @@
 <template>
   <Disclosure as="nav" class="bg-gray-800 bg-opacity-60" v-slot="{ open }">
-    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <DisclosureButton class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+          <DisclosureButton class="inline-flex items-center sm:hidden justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
             <span class="sr-only">Open main menu</span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
             <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
@@ -16,37 +16,39 @@
           </div>
           <div class="hidden mx-auto sm:block">
             <div class="inline-block" v-for="(val, index) in navigation">
-                <div class="dropdown-wrapper relative m-2">
-                  <button v-on:click="val.show = !val.show" :class="val.show ? 'bg-gray-800' : ''" class="transition duration-300 ease-in-out hover:bg-blue-600 bg-indigo-500 text-white font-bold py-2 px-4 whitespace-no-wrap rounded transition duration-300">{{index}} <svg xmlns="http://www.w3.org/2000/svg" class="inline-block float-right h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <div class="dropdown-wrapper relative sm:m-2 md:m-2 lg:m-4">
+                  <button v-on:click="close_dropdown(index)" :class="val.show ? 'bg-gray-800' : ''" class="transition duration-300 ease-in-out hover:bg-blue-600 bg-indigo-500 text-white font-bold sm:px-2 md:px-2 lg:px-4 py-2 whitespace-no-wrap rounded transition duration-300">{{index}} <svg xmlns="http://www.w3.org/2000/svg" class="inline-block float-right h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
 </svg></button>
                   <transition mode="out-in" name="scale" class="z-20">
                     <div class="absolute bg-indigo-500 text-white mt-1 rounded z-10 shadow-lg w-40 max-w-xs" v-if="val.show">
                       <ul class="list-none overflow-hidden rounded">
+                          <DisclosureButton v-if="index=='Categories'" @click="select_category(1000)" :class="this.selected_category==1000 ? 'bg-red-800' : ''" class="w-full hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">Show All</DisclosureButton>
                         <li v-for="category in val.items">
-                          <router-link to="/article" class="hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">{{category.name}}</router-link>
+                          <DisclosureButton v-if="category.id" @click="select_category(category.id)" :class="this.selected_category==category.id ? 'bg-red-800' : ''" class="w-full hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">{{category.name}}</DisclosureButton>
+                            <DisclosureButton v-if="!category.id" @click="sort_by(category)" :class="this.sorted_by==category.name ? 'bg-red-800' : ''" class="w-full hover:no-underline hover:text-white transition duration-300 ease-in-out hover:bg-blue-600 flex py-2 px-4 transition duration-300 theme-indigo">{{category.name}}</DisclosureButton>
                         </li>
                       </ul>
                     </div>
                   </transition>
               </div>
             </div>
-              <div class="dropdown-wrapper inline-block relative m-2">
+              <div v-on:click="close_dropdown(1000)" class="dropdown-wrapper inline-block relative m-2">
               <router-link class="hover:no-underline" to="/about">
-                <div class="transition duration-300 ease-in-out hover:bg-blue-600 bg-indigo-500 text-white font-bold py-2 px-4 rounded">
+                <div class="transition duration-300 ease-in-out hover:bg-blue-600 bg-indigo-500 text-white font-bold py-2 sm:px-2 md:px-2 lg:px-4 rounded">
                  About
                 </div>
               </router-link>
               </div>
-              <div v-if="this.getUser" class="dropdown-wrapper inline-block relative m-2 ">
-                  <router-link class="hover:no-underline" to="/add-article">
-                      <div class="transition duration-300 ease-in-out text-2xl hover:bg-green-600 bg-green-500 text-white font-bold py-0.5 px-4 rounded">
+              <div v-if="this.getUser" v-on:click="close_dropdown(1000)" class="dropdown-wrapper inline-block relative m-2 ">
+                  <router-link @click="changeEditingArticle" class="hover:no-underline" to="/add-article">
+                      <div class="transition duration-300 ease-in-out text-2xl hover:bg-green-600 bg-green-500 text-white font-bold py-0.5 sm:px-2 md:px-2 lg:px-4 rounded">
                           +
                       </div>
                   </router-link>
               </div>
-              <div v-if="this.getUser" class="dropdown-wrapper inline-block relative m-2">
-                  <button @click="logout" class="transition duration-300 ease-in-out hover:bg-red-600 bg-red-500 text-white font-bold py-2 absolute -top-3.5 px-4 rounded">
+              <div v-if="this.getUser" v-on:click="close_dropdown(1000)" class="dropdown-wrapper inline-block relative m-2">
+                  <button @click="logout" class="transition duration-300 ease-in-out hover:bg-red-600 bg-red-500 text-white font-bold py-2 absolute -top-3.5 sm:px-2 md:px-2 lg:px-4 rounded">
                       <svg xmlns="http://www.w3.org/2000/svg" class=" h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                       </svg>
@@ -57,9 +59,9 @@
         </div>
         <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
      <div class="float-right pt-1 relative text-gray-600">
-        <input class="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
+        <input v-on:click="close_dropdown(1000)" @keyup.enter="search_articles" v-model="search" class="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
           type="search" name="search" placeholder="Search">
-        <button type="submit" class="absolute right-0 top-0 mt-3 mr-4">
+        <button type="button" @click="search_articles" class="absolute right-0 top-0 mt-3 mr-4">
           <svg class="text-gray-600 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px"
             viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;" xml:space="preserve"
@@ -72,6 +74,7 @@
         </div>
       </div>
     </div>
+      <transition mode="in-out" name="scale" class="z-20">
     <DisclosurePanel class="sm:hidden absolute bg-gray-800 bg-opacity-60 min-w-full items-center">
       <div class="px-2 pb-3">
         <div class="dropdown-wrapper relative content-center items-center">
@@ -80,32 +83,42 @@
                  <div class="ml-5"> {{index}} <svg xmlns="http://www.w3.org/2000/svg" class="inline-block float-right h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
 </svg></div>
+                    <transition mode="in-out" name="scale" class="z-20">
                       <div :class="val.show ? 'border-t-2 border-solid' : ''">
+                          <div class="hover:bg-blue-600 w-full overflow-hidden py-1 bg-gray-800 text-white mt-1 rounded z-10 shadow-lg "  v-if="index=='Categories' && val.show">
+                              <DisclosureButton :class="this.selected_category==1000 ? 'bg-red-800' : ''" @click="select_category(1000)" to="/admin-login" class="w-full">
+                                  <div class="hover:text-white hover:no-underline w-full text-center">Show All</div>
+                              </DisclosureButton>
+                          </div>
                         <div v-for="article in val.items" class="hover:bg-blue-600 w-full overflow-hidden py-1 bg-gray-800 text-white mt-1 rounded z-10 shadow-lg " v-if="val.show">
-                            <router-link to="/admin-login" class="w-full">
-                                <div class="hover:text-white hover:no-underline w-full text-center">{{article}}</div>
-                            </router-link>
+                            <DisclosureButton :class="this.selected_category==article.id ? 'bg-red-800' : ''" v-if="article.id" @click="select_category(article.id)" to="/admin-login" class="w-full">
+                                <div class="hover:text-white hover:no-underline w-full text-center">{{article.name}}</div>
+                            </DisclosureButton>
+                            <DisclosureButton :class="this.sorted_by==article.name ? 'bg-red-800' : ''" v-if="!article.id" @click="sort_by(article)" to="/admin-login" class="w-full">
+                                <div class="hover:text-white hover:no-underline w-full text-center">{{article.name}}</div>
+                            </DisclosureButton>
                         </div>
                       </div>
-
+                    </transition>
                 </div>
           </nav>
-          <router-link to="/about">
-            <div class="rounded-lg mt-2 items-center py-2 px-8 bg-gray-700 text-gray-100 border-r-4 border-gray-100">
+          <router-link class="hover:no-underline" to="/about">
+            <DisclosureButton class="w-full rounded-lg mt-2 items-center py-2 px-8 bg-gray-700 text-gray-100 border-r-4 border-gray-100">
               About
-            </div>
+            </DisclosureButton>
           </router-link>
-            <router-link v-if="getUser" to="/about">
-                <div class="rounded-lg mt-2 items-center py-2 px-8 bg-green-700 text-gray-100 border-r-4 border-gray-100">
-                    About
-                </div>
+            <router-link class="hover:no-underline" @click="changeEditingArticle" v-if="getUser" to="/add-article">
+                <DisclosureButton class="w-full rounded-lg mt-2 items-center py-2 px-8 bg-green-700 text-gray-100 border-r-4 border-gray-100">
+                    Add New Article
+                </DisclosureButton>
             </router-link>
-            <div v-if="getUser" @click="logout" class="rounded-lg mt-2 items-center py-2 px-8 bg-red-700 text-white border-r-4 border-gray-100">
+            <DisclosureButton v-if="getUser" @click="logout" class="rounded-lg w-full mt-2 items-center py-2 px-8 bg-red-700 text-white border-r-4 border-gray-100">
                 Logout
-            </div>
+            </DisclosureButton>
         </div>
       </div>
     </DisclosurePanel>
+      </transition>
   </Disclosure>
 </template>
 
@@ -131,9 +144,12 @@ export default {
   },
   data: function() {
     return{
+        selected_category: 1000,
+        sorted_by: 'Newest',
+        search:null,
       show: false,
       navigation:{
-        Articles: {
+        Categories: {
           show: false,
           items: []
         },
@@ -142,36 +158,95 @@ export default {
           items: [
               {name: 'Name'},
               {name: 'Newest'},
-              {name: 'Popular'},
+              {name: 'Popular'}
           ]
         }
       }
     }
   },
     created() {
+        axios.get('http://blog.local/api/getArticles').then(response => {
+            this.$store.commit('setArticles', response.data.articles)
+            this.$store.commit('setDisplayArticles', response.data.articles)
+            if(this.sorted_by=='Name') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.title < b.title) {
+                        return -1;
+                    }
+                    else {
+                        return 1;
+                    }
+                    return 0;
+                })
+            }
+            else if(this.sorted_by=='Newest') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.created_at < b.created_at) {
+                        return 1;
+                    }
+                    else{
+                        return -1;
+                    }
+                    return 0;
+                })
+            }
+            else if(this.sorted_by=='Popular') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.views < b.views) {
+                        return 1;
+                    }
+                    else {
+                        return -1;
+                    }
+                    return 0;
+                })
+            }
+        })
+            .catch(function (error) {
+                console.error(error);
+            });
         window.addEventListener('click', this.close)
+        this.$store.commit('setSort', this.sorted_by)
         axios.get('http://blog.local/api/getCategories').then( response => {
             this.$store.commit('setCategories', response.data)
-            this.navigation.Articles.items=response.data
+            this.navigation.Categories.items=response.data
         })
     },
     computed: {
         ...mapGetters([
             'getUser',
-            'getCategories'
-        ])
+            'getCategories',
+            'getArticles',
+            'getDisplayArticles'
+        ]),
     },
     methods: {
+      close_dropdown(val){
+              for (let key in this.navigation) {
+                  if(key!=val) {
+                      this.navigation[key].show = false;
+                  }
+                  else{
+                      this.navigation[key].show = !this.navigation[key].show;
+                  }
+              }
+      },
         close(e) {
-            if (! this.$el.contains(e.target) ){
+            if (!this.$el.contains(e.target) ){
                 for (let key in this.navigation) {
                     this.navigation[key].show=false;
                 }
             }
         },
+        changeEditingArticle() {
+            this.$store.commit('setEditingArticle', false)
+            for (let key in this.navigation) {
+                this.navigation[key].show=false;
+            }
+        },
         logout(e){
             e.preventDefault();
-            axios.post('http://blog.local/api/logout').then(response => {
+            axios.get('http://blog.local/api/logout').then(response => {
                 if (response.data.success) {
                     this.$toast.success(response.data.message);
                     this.$store.commit('setUser', null)
@@ -183,6 +258,188 @@ export default {
                 .catch(function (error) {
                     console.error(error);
                 });
+        },
+        select_category(id){
+            this.selected_category=id;
+            this.current_page=1;
+            this.$store.commit('setSelectedCategory', id)
+            if(id==1000){
+                axios.get('http://blog.local/api/getArticles').then(response => {
+                    this.$store.commit('setArticles', response.data.articles)
+                    this.$store.commit('setDisplayArticles', response.data.articles)
+                    if(this.sorted_by=='Name') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.title < b.title) {
+                                return -1;
+                            }
+                            else {
+                                return 1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Newest') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.created_at < b.created_at) {
+                                return 1;
+                            }
+                            else{
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Popular') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.views < b.views) {
+                                return 1;
+                            }
+                            else {
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    this.$router.push('/')
+                })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
+            }
+            else {
+                axios.get('http://blog.local/api/displayArticles/'+id+'/'+this.sorted_by).then(response => {
+                    this.$store.commit('setDisplayArticles', response.data.articles)
+                    if(this.sorted_by=='Name') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.title < b.title) {
+                                return -1;
+                            }
+                            else {
+                                return 1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Newest') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.created_at < b.created_at) {
+                                return 1;
+                            }
+                            else{
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Popular') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.views < b.views) {
+                                return 1;
+                            }
+                            else {
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    this.$router.push('/')
+                })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
+            }
+            for (let key in this.navigation) {
+                this.navigation[key].show=false;
+            }
+        },
+        search_articles() {
+                if (this.search.length > 2) {
+                    axios.get('http://blog.local/api/searchArticles/'+this.search).then(response => {
+                        this.$store.commit('setDisplayArticles', response.data.articles)
+                        if(this.sorted_by=='Name') {
+                            this.getDisplayArticles.data.sort(function (a, b) {
+                                if (a.title < b.title) {
+                                    return -1;
+                                }
+                                else {
+                                    return 1;
+                                }
+                                return 0;
+                            })
+                        }
+                        else if(this.sorted_by=='Newest') {
+                            this.getDisplayArticles.data.sort(function (a, b) {
+                                if (a.created_at < b.created_at) {
+                                    return 1;
+                                }
+                                else{
+                                    return -1;
+                                }
+                                return 0;
+                            })
+                        }
+                        else if(this.sorted_by=='Popular') {
+                            this.getDisplayArticles.data.sort(function (a, b) {
+                                if (a.views < b.views) {
+                                    return 1;
+                                }
+                                else {
+                                    return -1;
+                                }
+                                return 0;
+                            })
+                        }
+                        this.$router.push('/')
+                    })
+                        .catch(function (error) {
+                            console.error(error);
+                        });
+                } else {
+                    this.$store.commit('setDisplayArticles', this.getArticles);
+                    this.$router.push('/');
+                }
+        },
+        sort_by(value){
+            this.sorted_by=value.name;
+            this.$store.commit('setSort', value.name)
+            if(this.sorted_by=='Name') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.title < b.title) {
+                        return -1;
+                    }
+                    else {
+                        return 1;
+                    }
+                    return 0;
+                })
+            }
+            else if(this.sorted_by=='Newest') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.created_at < b.created_at) {
+                        return 1;
+                    }
+                    else{
+                        return -1;
+                    }
+                    return 0;
+                })
+            }
+            else if(this.sorted_by=='Popular') {
+                this.getDisplayArticles.data.sort(function (a, b) {
+                    if (a.views < b.views) {
+                        return 1;
+                    }
+                    else {
+                        return -1;
+                    }
+                    return 0;
+                })
+            }
+            for (let key in this.navigation) {
+                this.navigation[key].show=false;
+            }
+
+            this.$router.push('/')
         }
     },
   setup() {
