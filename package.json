@@ -38,6 +38,7 @@
         "quill-image-compress": "^1.2.15",
         "stylus-loader": "^3.0.2",
         "vue-router": "^4.0.10",
+        "vue-social-sharing": "^4.0.0-alpha4",
         "vue-upload-drop-images": "^1.0.7",
         "vuex": "^4.0.2",
         "vuex-persistedstate": "^4.0.0"

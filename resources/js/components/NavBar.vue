@@ -83,7 +83,6 @@
                  <div class="ml-5"> {{index}} <svg xmlns="http://www.w3.org/2000/svg" class="inline-block float-right h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
 </svg></div>
-                    <transition mode="in-out" name="scale" class="z-20">
                       <div :class="val.show ? 'border-t-2 border-solid' : ''">
                           <div class="hover:bg-blue-600 w-full overflow-hidden py-1 bg-gray-800 text-white mt-1 rounded z-10 shadow-lg "  v-if="index=='Categories' && val.show">
                               <DisclosureButton :class="this.selected_category==1000 ? 'bg-red-800' : ''" @click="select_category(1000)" to="/admin-login" class="w-full">
@@ -99,7 +98,6 @@
                             </DisclosureButton>
                         </div>
                       </div>
-                    </transition>
                 </div>
           </nav>
           <router-link class="hover:no-underline" to="/about">
@@ -146,7 +144,7 @@ export default {
     return{
         selected_category: 1000,
         sorted_by: 'Newest',
-        search:null,
+        search:'',
       show: false,
       navigation:{
         Categories: {
@@ -348,6 +346,7 @@ export default {
                         console.error(error);
                     });
             }
+            this.search='';
             for (let key in this.navigation) {
                 this.navigation[key].show=false;
             }
@@ -389,6 +388,7 @@ export default {
                                 return 0;
                             })
                         }
+                        this.selected_category=1000
                         this.$router.push('/')
                     })
                         .catch(function (error) {
@@ -396,6 +396,40 @@ export default {
                         });
                 } else {
                     this.$store.commit('setDisplayArticles', this.getArticles);
+                    if(this.sorted_by=='Name') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.title < b.title) {
+                                return -1;
+                            }
+                            else {
+                                return 1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Newest') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.created_at < b.created_at) {
+                                return 1;
+                            }
+                            else{
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    else if(this.sorted_by=='Popular') {
+                        this.getDisplayArticles.data.sort(function (a, b) {
+                            if (a.views < b.views) {
+                                return 1;
+                            }
+                            else {
+                                return -1;
+                            }
+                            return 0;
+                        })
+                    }
+                    this.selected_category=1000
                     this.$router.push('/');
                 }
         },

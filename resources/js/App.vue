@@ -1,6 +1,6 @@
 <template>
   <NavBar class="sticky z-40 inset-x-0 shadow-xl lg:w-3/4 lg:mx-auto lg:top-10 top-0 rounded-lg"/>
-    <router-view v-slot="{ Component }" class="-mt-16 bg-hero-lg bg-cover bg-fixed">
+    <router-view v-slot="{ Component }" class="-mt-16 bg-hero-lg bg-fixed">
       <transition name="slide-fade" mode="out-in">
         <component :is="Component" />
       </transition>

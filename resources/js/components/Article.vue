@@ -45,6 +45,7 @@
     <div class="bg-black bg-opacity-70 min-w-full min-h-screen text-white font-serif">
         <div v-for="category in selected_article.categories" class="p-1 m-2 text-xl rounded-xl inline-block float-left bg-blue-500">{{category.name}}</div>
         <div v-if="getUser" class="absolute right-0">
+            <div class="py-1 px-4 m-2 text-xl rounded-xl inline-block float-left bg-green-500">Views: {{selected_article.views}}</div>
             <button @click="edit_article" class="m-2 inline-block">
                 <svg xmlns="http://www.w3.org/2000/svg" class="text-yellow-500 hover:text-yellow-700 h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -59,20 +60,45 @@
         <h1 class="text-center w-full text-5xl py-16">{{selected_article.title}}</h1>
         <p class="py-4 px-8" v-html="selected_article.content"></p>
         <div v-for="tag in selected_article.tags" class="px-2 mt-20 text-xl inline-block float-left text-blue-500">@{{tag.title}}</div>
-        <div class="px-2 mt-20 text-xl inline-block float-right italic text-white">Author: {{selected_article.author}}</div>
+        <div class="px-2 mt-5 w-full md:w-40 md:mt-20 text-xl inline-block float-right italic text-white">Author: {{selected_article.author}}</div>
+        <div class="mx-auto w-full">
+        <ShareNetwork
+            network="facebook"
+            :url="url"
+            :title="selected_article.title"
+            :description="selected_article.description"
+            :quote="selected_article.description"
+            :hashtags="hashtags"
+            class="inline-block my-10 mx-4"
+        >
+            <img class="w-14 h-14" src="/storage/facebook.png" alt="">
+        </ShareNetwork>
+        <ShareNetwork
+            network="twitter"
+            :url="url"
+            :title="selected_article.title"
+            :description="selected_article.description"
+            :quote="selected_article.description"
+            :hashtags="hashtags"
+            class="inline-block my-10 mx-4"
+        >
+        <img class="w-14 h-14" src="/storage/twitter.png" alt="">
+        </ShareNetwork>
+            </div>
     </div>
 </div>
 </template>
 <script>
-import {mapGetters} from "vuex";
-import axios from "axios";
+import {mapGetters} from "vuex"
 
 export default{
         data: function() {
             return{
                 expand: false,
                 active: 0,
-                selected_article: null
+                selected_article: null,
+                url: window.location.href,
+                hashtags: ""
             }
         },
         computed:{
@@ -129,8 +155,19 @@ export default{
                     .then(response => {
                         this.selected_article=response.data
                         this.$store.commit('setSelectedArticle', response.data)
-                        this.error = null;
                         this.$store.commit('setEditingArticle', false);
+                        const e=this
+                        response.data.tags.findIndex(function (tag){
+                            if(e.hashtags!=="") {
+                                e.hashtags = e.hashtags + ',' + tag.title
+                            }
+                            else{
+                                e.hashtags = tag.title
+                            }
+                        })
+                        const descEl = document.querySelector('head meta[property="og:image"]')
+
+                        descEl.setAttribute('content', 'http://blog.local/storage/images/'+response.data.images[0].title)
                     })
                     .catch(function (error) {
                         console.error(error);
