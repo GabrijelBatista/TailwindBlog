@@ -15,15 +15,15 @@ class UserSeeder extends Seeder
     {
         \DB::table('users')->insert([
             'name'=>'Antonija Spajić',
-            'email' => '******',
-            'password' => \Hash::make('******'),
+            'email' => 'antonija@admin.com',
+            'password' => \Hash::make('antonija-admin123'),
             'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
             'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
         ]);
         \DB::table('users')->insert([
             'name'=>'Enis Pekić',
-            'email' => '*******',
-            'password' => \Hash::make('********'),
+            'email' => 'enis@admin.com',
+            'password' => \Hash::make('enis-admin123'),
             'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
             'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
         ]);

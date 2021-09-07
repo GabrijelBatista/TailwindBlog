@@ -70,14 +70,14 @@ export default{
                         this.$router.push('/article/'+title)
         },
         pagination(){
-            axios.get('http://blog.local/api/displayArticles/'+this.getSelectedCategory+'/'+this.getSort+'?page=' + this.currentPage).then(response => {
+            axios.get('https://test-blog.almost-digital.com/api/displayArticles/'+this.getSelectedCategory+'/'+this.getSort+'?page=' + this.currentPage).then(response => {
                 this.$store.commit('setDisplayArticles', response.data.articles)
             })
         }
 
     },
     created(){
-            axios.get('http://blog.local/api/getArticles').then(response => {
+            axios.get('https://test-blog.almost-digital.com/api/getArticles').then(response => {
                 this.$store.commit('setArticles', response.data.articles)
                 if(this.getDisplayArticles==null){
                     this.$store.commit('setDisplayArticles', response.data.articles)

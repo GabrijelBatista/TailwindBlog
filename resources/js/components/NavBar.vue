@@ -41,6 +41,13 @@
               </router-link>
               </div>
               <div v-if="this.getUser" v-on:click="close_dropdown(1000)" class="dropdown-wrapper inline-block relative m-2 ">
+                  <router-link class="hover:no-underline" to="/subscribers">
+                      <div class="transition duration-300 ease-in-out text-2xl hover:bg-yellow-600 bg-yellow-500 text-white font-bold py-0.5 sm:px-2 md:px-2 lg:px-4 rounded">
+                          S
+                      </div>
+                  </router-link>
+              </div>
+              <div v-if="this.getUser" v-on:click="close_dropdown(1000)" class="dropdown-wrapper inline-block relative m-2 ">
                   <router-link @click="changeEditingArticle" class="hover:no-underline" to="/add-article">
                       <div class="transition duration-300 ease-in-out text-2xl hover:bg-green-600 bg-green-500 text-white font-bold py-0.5 sm:px-2 md:px-2 lg:px-4 rounded">
                           +
@@ -105,6 +112,11 @@
               About
             </DisclosureButton>
           </router-link>
+            <router-link class="hover:no-underline" v-if="getUser" to="/subscribers">
+                <DisclosureButton class="w-full rounded-lg mt-2 items-center py-2 px-8 bg-yellow-700 text-gray-100 border-r-4 border-gray-100">
+                    Subscribers
+                </DisclosureButton>
+            </router-link>
             <router-link class="hover:no-underline" @click="changeEditingArticle" v-if="getUser" to="/add-article">
                 <DisclosureButton class="w-full rounded-lg mt-2 items-center py-2 px-8 bg-green-700 text-gray-100 border-r-4 border-gray-100">
                     Add New Article
@@ -163,7 +175,7 @@ export default {
     }
   },
     created() {
-        axios.get('http://blog.local/api/getArticles').then(response => {
+        axios.get('https://test-blog.almost-digital.com/api/getArticles').then(response => {
             this.$store.commit('setArticles', response.data.articles)
             this.$store.commit('setDisplayArticles', response.data.articles)
             if(this.sorted_by=='Name') {
@@ -205,7 +217,7 @@ export default {
             });
         window.addEventListener('click', this.close)
         this.$store.commit('setSort', this.sorted_by)
-        axios.get('http://blog.local/api/getCategories').then( response => {
+        axios.get('https://test-blog.almost-digital.com/api/getCategories').then( response => {
             this.$store.commit('setCategories', response.data)
             this.navigation.Categories.items=response.data
         })
@@ -244,7 +256,7 @@ export default {
         },
         logout(e){
             e.preventDefault();
-            axios.get('http://blog.local/api/logout').then(response => {
+            axios.get('https://test-blog.almost-digital.com/api/logout').then(response => {
                 if (response.data.success) {
                     this.$toast.success(response.data.message);
                     this.$store.commit('setUser', null)
@@ -262,7 +274,7 @@ export default {
             this.current_page=1;
             this.$store.commit('setSelectedCategory', id)
             if(id==1000){
-                axios.get('http://blog.local/api/getArticles').then(response => {
+                axios.get('https://test-blog.almost-digital.com/api/getArticles').then(response => {
                     this.$store.commit('setArticles', response.data.articles)
                     this.$store.commit('setDisplayArticles', response.data.articles)
                     if(this.sorted_by=='Name') {
@@ -305,7 +317,7 @@ export default {
                     });
             }
             else {
-                axios.get('http://blog.local/api/displayArticles/'+id+'/'+this.sorted_by).then(response => {
+                axios.get('https://test-blog.almost-digital.com/api/displayArticles/'+id+'/'+this.sorted_by).then(response => {
                     this.$store.commit('setDisplayArticles', response.data.articles)
                     if(this.sorted_by=='Name') {
                         this.getDisplayArticles.data.sort(function (a, b) {
@@ -353,7 +365,7 @@ export default {
         },
         search_articles() {
                 if (this.search.length > 2) {
-                    axios.get('http://blog.local/api/searchArticles/'+this.search).then(response => {
+                    axios.get('https://test-blog.almost-digital.com/api/searchArticles/'+this.search).then(response => {
                         this.$store.commit('setDisplayArticles', response.data.articles)
                         if(this.sorted_by=='Name') {
                             this.getDisplayArticles.data.sort(function (a, b) {

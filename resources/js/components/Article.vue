@@ -69,9 +69,9 @@
             :description="selected_article.description"
             :quote="selected_article.description"
             :hashtags="hashtags"
-            class="inline-block my-10 mx-4"
+            class="inline-block my-10 mx-2 md:mx-4"
         >
-            <img class="w-14 h-14" src="/storage/facebook.png" alt="">
+            <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/facebook.png" alt="">
         </ShareNetwork>
         <ShareNetwork
             network="twitter"
@@ -80,10 +80,43 @@
             :description="selected_article.description"
             :quote="selected_article.description"
             :hashtags="hashtags"
-            class="inline-block my-10 mx-4"
+            class="inline-block my-10 mx-2 md:mx-4"
         >
-        <img class="w-14 h-14" src="/storage/twitter.png" alt="">
+        <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/twitter.png" alt="">
         </ShareNetwork>
+            <ShareNetwork
+                network="messenger"
+                :url="url"
+                :title="selected_article.title"
+                :description="selected_article.description"
+                :quote="selected_article.description"
+                :hashtags="hashtags"
+                class="inline-block my-10 mx-2 md:mx-4"
+            >
+                <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/messenger.png" alt="">
+            </ShareNetwork>
+            <ShareNetwork
+                network="whatsapp"
+                :url="url"
+                :title="selected_article.title"
+                :description="selected_article.description"
+                :quote="selected_article.description"
+                :hashtags="hashtags"
+                class="inline-block my-10 mx-2 md:mx-4"
+            >
+                <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/whatsup.png" alt="">
+            </ShareNetwork>
+            <ShareNetwork
+                network="linkedin"
+                :url="url"
+                :title="selected_article.title"
+                :description="selected_article.description"
+                :quote="selected_article.description"
+                :hashtags="hashtags"
+                class="inline-block my-10 mx-2 md:mx-4"
+            >
+                <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/linkedin.png" alt="">
+            </ShareNetwork>
             </div>
     </div>
 </div>
@@ -98,7 +131,8 @@ export default{
                 active: 0,
                 selected_article: null,
                 url: window.location.href,
-                hashtags: ""
+                hashtags: "",
+                media: null
             }
         },
         computed:{
@@ -132,7 +166,7 @@ export default{
             },
             delete_article(id){
                 if (confirm('Are you sure you want to delete this article?')) {
-                    axios.post('http://blog.local/api/deleteArticle', {
+                    axios.post('https://test-blog.almost-digital.com/api/deleteArticle', {
                         'id': id
                     }).then(response => {
                         this.$store.commit('setArticles', response.data);
@@ -151,12 +185,13 @@ export default{
             },
         },
         created(){
-            axios.get('http://blog.local/api/selectArticle/' + this.$route.params.title)
+            axios.get('https://test-blog.almost-digital.com/api/selectArticle/' + this.$route.params.title)
                     .then(response => {
                         this.selected_article=response.data
                         this.$store.commit('setSelectedArticle', response.data)
                         this.$store.commit('setEditingArticle', false);
                         const e=this
+                        this.media='https://test-blog.almost-digital.com/storage/images'+response.data.images[0].title
                         response.data.tags.findIndex(function (tag){
                             if(e.hashtags!=="") {
                                 e.hashtags = e.hashtags + ',' + tag.title
@@ -165,9 +200,6 @@ export default{
                                 e.hashtags = tag.title
                             }
                         })
-                        const descEl = document.querySelector('head meta[property="og:image"]')
-
-                        descEl.setAttribute('content', 'http://blog.local/storage/images/'+response.data.images[0].title)
                     })
                     .catch(function (error) {
                         console.error(error);

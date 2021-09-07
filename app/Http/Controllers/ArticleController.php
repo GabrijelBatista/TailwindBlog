@@ -8,10 +8,12 @@ use App\Models\ArticleCategory;
 use App\Models\ArticleImage;
 use App\Models\ArticleTag;
 use App\Models\Image;
+use App\Models\Subscriber;
 use App\Models\Tag;
+use App\Notifications\NewArticle;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class ArticleController extends Controller
 {
@@ -172,6 +174,13 @@ class ArticleController extends Controller
                 ]
             );
         }
+
+        $subscribers=Subscriber::where('verified', 1)->where('disabled', 0)->get();
+        $email_data = [
+            'title' => $request->title,
+            'description' => $request->description,
+        ];
+        Notification::send($subscribers, new NewArticle($email_data));
 
         return response()->json(200);
     }

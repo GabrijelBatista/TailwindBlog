@@ -56,8 +56,8 @@ export default {
             handleSubmit(e) {
                 e.preventDefault()
                 if (this.password.length > 0) {
-                    axios.get('http://blog.local/sanctum/csrf-cookie').then(response => {
-                        axios.post('http://blog.local/api/login', {
+                    axios.get('https://test-blog.almost-digital.com/sanctum/csrf-cookie').then(response => {
+                        axios.post('https://test-blog.almost-digital.com/api/login', {
                             email: this.email,
                             password: this.password
                         })

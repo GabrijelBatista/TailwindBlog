@@ -6,6 +6,7 @@ import AdminLogin from "./components/AdminLogin.vue";
 import About from "./components/About.vue";
 import Article from "./components/Article.vue";
 import AddArticle from "./components/AddArticle.vue";
+import Subscribers from "./components/Subscribers.vue";
 
 
 const routes = [
@@ -37,6 +38,14 @@ const routes = [
             requiresAuth: true
         }
     },
+    {
+        path: "/subscribers",
+        name: "Subscribers",
+        component: Subscribers,
+        meta: {
+            requiresAuth: true
+        }
+    }
 ];
 
 const router = createRouter({

@@ -11,7 +11,7 @@ import VueSocialSharing from 'vue-social-sharing'
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.use(router)
-app.use(Toaster)
+app.use(Toaster, {position: "top-right"})
 app.use(store)
 app.use(VueSocialSharing)
 app.mount('#app')

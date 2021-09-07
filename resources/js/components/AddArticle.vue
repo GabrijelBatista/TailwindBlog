@@ -24,6 +24,16 @@
             <QuillEditor :modules="[modules, modules2]" id="quill" class="bg-white min-h-screen" toolbar="full" theme="snow" />
             <upload-images @changed="handleImages" class="mt-3"/>
             <textarea placeholder="Short description" v-model="description" class="w-full mt-4 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="6"></textarea>
+            <div class="relative inline-block w-5/6 float-left md:w-1/3 m-5 text-gray-700">
+                <Multiselect
+                    v-model="tags"
+                    mode="tags"
+                    :createTag="true"
+                    :searchable="true"
+                    placeholder="Add tags:"
+                    :addTagOn="['space', 'enter']"
+                />
+            </div>
             <button v-if="!getEditingArticle" @click="save" class="mt-5 float-right flex bg-green-500 rounded-full font-bold text-white px-4 py-3 transition duration-300 ease-in-out hover:bg-green-600 mr-6">
                 Publish
                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,16 +48,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
             </button>
-            <div class="relative inline-block w-5/6 float-left md:w-1/3 m-5 text-gray-700">
-                <Multiselect
-                    v-model="tags"
-                    mode="tags"
-                    :createTag="true"
-                    :searchable="true"
-                    placeholder="Add tags:"
-                    :addTagOn="['space', 'enter']"
-                />
-            </div>
         </div>
         <transition name="fade"  mode="out-in">
             <div v-show="expand" class="fixed z-50 top-0 left-0 right-0 bottom-0 w-full h-screen bg-gray-700 bg-opacity-90 flex flex-col items-center justify-center">
@@ -162,7 +162,7 @@ export default {
                 form.append('html', document.getElementById("quill").firstChild.innerHTML);
                 if((this.getEditingArticle)) {
                     form.append('id', this.getSelectedArticle.id);
-                    axios.post('http://blog.local/api/editArticle', form, {
+                    axios.post('https://test-blog.almost-digital.com/api/editArticle', form, {
                         headers: {
                             "Content-Type": "multipart/form-data; boundary=${form._boundary}"
                         }
@@ -177,13 +177,13 @@ export default {
                     });
                 }
                 else{
-                    axios.post('http://blog.local/api/addArticle', form, {
+                    axios.post('https://test-blog.almost-digital.com/api/addArticle', form, {
                         headers: {
                             "Content-Type": "multipart/form-data; boundary=${form._boundary}"
                         }
                     }).then(response => {
                         document.getElementById("quill").firstChild.innerHTML = null;
-                        axios.get('http://blog.local/api/getArticles').then(response => {
+                        axios.get('https://test-blog.almost-digital.com/api/getArticles').then(response => {
                             this.$router.push('/');
                             this.$toast.success('Article added!');
                         }).catch(function (error) {
@@ -207,7 +207,7 @@ export default {
         },
         add_category(){
             if(this.new_category!=null){
-                axios.post('http://blog.local/api/addCategory', {
+                axios.post('https://test-blog.almost-digital.com/api/addCategory', {
                     'name' : this.new_category
                 }).then( response => {
                     this.$store.commit('setCategories', response.data)
@@ -221,7 +221,7 @@ export default {
             }
         },
         delete_category(id){
-                axios.post('http://blog.local/api/deleteCategory', {
+                axios.post('https://test-blog.almost-digital.com/api/deleteCategory', {
                     'id' : id
                 }).then( response => {
                     this.$store.commit('setCategories', response.data)
