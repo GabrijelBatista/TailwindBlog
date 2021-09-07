@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" value="{{ csrf_token() }}"/>
     <meta property="fb:app_id" content="3034978530121884" />
-    <meta property="og:image" content="https://test-blog.almost-digital.com/storage/images/flower.jpg" />
+    <meta property="og:image" content="https://test-blog.almost-digital.com/storage/images/blog_app_background.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
     <meta property="og:url" content="https://test-blog.almost-digital.com" />
     <meta property="og:title" content="test" />
     <meta property="og:description" content="test" />
     <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="https://test-blog.almost-digital.com/storage/images/blog_app_background.png" />
+
 
     <title>{{env('APP_NAME')}}</title>
     <link href="{{ mix('css/app.css') }}" type="text/css" rel="stylesheet"/>

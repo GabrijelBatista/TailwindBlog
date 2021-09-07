@@ -59,9 +59,12 @@
         </div>
         <h1 class="text-center w-full text-5xl py-16">{{selected_article.title}}</h1>
         <p class="py-4 px-8" v-html="selected_article.content"></p>
-        <div v-for="tag in selected_article.tags" class="px-2 mt-20 text-xl inline-block float-left text-blue-500">@{{tag.title}}</div>
-        <div class="px-2 mt-5 w-full md:w-40 md:mt-20 text-xl inline-block float-right italic text-white">Author: {{selected_article.author}}</div>
+        <div class="flex">
+            <div v-for="tag in selected_article.tags" class="px-2 mt-5 md:mt-20 float-right w-1/2 italic text-blue-500">@{{tag.title}}</div>
+            <div class="px-2 mt-5 md:mt-20 float-right w-1/2 italic text-white">Author: {{selected_article.author}}</div>
+        </div>
         <div class="mx-auto w-full">
+            <div class="text-white mt-16 w-full font-extrabold font-serif">Share on social media: </div>
         <ShareNetwork
             network="facebook"
             :url="url"
@@ -69,7 +72,7 @@
             :description="selected_article.description"
             :quote="selected_article.description"
             :hashtags="hashtags"
-            class="inline-block my-10 mx-2 md:mx-4"
+            class="inline-block my-4 mx-2 md:mx-4"
         >
             <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/facebook.png" alt="">
         </ShareNetwork>
@@ -80,18 +83,19 @@
             :description="selected_article.description"
             :quote="selected_article.description"
             :hashtags="hashtags"
-            class="inline-block my-10 mx-2 md:mx-4"
+            class="inline-block my-4 mx-2 md:mx-4"
         >
         <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/twitter.png" alt="">
         </ShareNetwork>
             <ShareNetwork
+                v-if="mobile"
                 network="messenger"
                 :url="url"
                 :title="selected_article.title"
                 :description="selected_article.description"
                 :quote="selected_article.description"
                 :hashtags="hashtags"
-                class="inline-block my-10 mx-2 md:mx-4"
+                class="inline-block my-4 mx-2 md:mx-4"
             >
                 <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/messenger.png" alt="">
             </ShareNetwork>
@@ -102,7 +106,7 @@
                 :description="selected_article.description"
                 :quote="selected_article.description"
                 :hashtags="hashtags"
-                class="inline-block my-10 mx-2 md:mx-4"
+                class="inline-block my-4 mx-2 md:mx-4"
             >
                 <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/whatsup.png" alt="">
             </ShareNetwork>
@@ -113,7 +117,7 @@
                 :description="selected_article.description"
                 :quote="selected_article.description"
                 :hashtags="hashtags"
-                class="inline-block my-10 mx-2 md:mx-4"
+                class="inline-block my-4 mx-2 md:mx-4"
             >
                 <img class="w-10 h-10 md:w-14 md:h-14" src="/storage/linkedin.png" alt="">
             </ShareNetwork>
@@ -127,6 +131,7 @@ import {mapGetters} from "vuex"
 export default{
         data: function() {
             return{
+                mobile:false,
                 expand: false,
                 active: 0,
                 selected_article: null,
@@ -204,6 +209,9 @@ export default{
                     .catch(function (error) {
                         console.error(error);
                     });
+            if(window.innerWidth<=600){
+                this.mobile=true
+            }
         }
     }
 </script>
